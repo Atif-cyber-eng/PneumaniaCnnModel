@@ -1,58 +1,72 @@
-
 import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
+import gdown
+import os
 
-# 1. Load the pre-trained covid_detection.keras model
-# Ensure the model path is correct or accessible in the Streamlit app environment
+# -------------------------
+# 1. Download the model from Google Drive if not already present
+# -------------------------
+MODEL_URL = 'https://drive.google.com/uc?id=15ji-5Y6fwZmEBqw0MlP1Z6L8RAmWKAVh'
+MODEL_PATH = 'covid_detection.keras'
+
+if not os.path.exists(MODEL_PATH):
+    st.write("Downloading model...")
+    gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+    st.success("Model downloaded successfully!")
+
+# -------------------------
+# 2. Load the model (cached to prevent reloading)
+# -------------------------
 @st.cache_resource
 def load_my_model():
-    model = tf.keras.models.load_model('https://drive.google.com/file/d/15ji-5Y6fwZmEBqw0MlP1Z6L8RAmWKAVh/view?usp=sharing')
+    model = tf.keras.models.load_model(MODEL_PATH)
     return model
 
 model = load_my_model()
 
-# Define the label dictionary consistent with training
+# -------------------------
+# 3. Label dictionary
+# -------------------------
 label_dict = {
     0: 'PNEUMONIA',
     1: 'NORMAL'
 }
 
-# 2. Set up the Streamlit application title and a brief description
+# -------------------------
+# 4. Streamlit app layout
+# -------------------------
 st.title('X-Ray Image Classifier: PNEUMONIA vs. NORMAL')
 st.write('Upload an X-ray image to get a prediction on whether it indicates PNEUMONIA or is NORMAL.')
 
-# 3. Add a file uploader widget
 uploaded_file = st.file_uploader("Choose an X-ray image...", type=["jpg", "jpeg", "png"])
 
-# 4. Check if an image has been uploaded
 if uploaded_file is not None:
     # Display the uploaded image
-    image = Image.open(io.BytesIO(uploaded_file.read()))
+    image_data = uploaded_file.read()
+    image = Image.open(io.BytesIO(image_data))
     st.image(image, caption='Uploaded X-ray Image', use_column_width=True)
     st.write("")
     st.write("Classifying...")
 
-    # Preprocess the uploaded image
-    # Resize to (224, 224) as used in training
+    # Preprocess image (resize to 224x224 as model expects)
     img_resized = image.resize((224, 224))
-    # Convert to NumPy array
-    img_array = np.array(img_resized)
-    # Expand dimensions to (1, 224, 224, 3) to match model input shape
-    img_array = np.expand_dims(img_array, axis=0)
+    img_array = np.array(img_resized) / 255.0  # Normalize
+    img_array = np.expand_dims(img_array, axis=0)  # Shape: (1, 224, 224, 3)
 
-    # Make a prediction
+    # Make prediction
     predictions = model.predict(img_array)
 
-    # Interpret the prediction
-    # The model was trained with to_categorical, so output will be probability for each class
-    # assuming binary classification [prob_pneumonia, prob_normal]
+    # Get predicted label
     predicted_class_index = np.argmax(predictions, axis=1)[0]
     predicted_label = label_dict[predicted_class_index]
-    
-    # Display probabilities (optional, but good for understanding confidence)
-    st.write(f"Prediction Probabilities: Pneumonia: {predictions[0][0]:.2f}, Normal: {predictions[0][1]:.2f}")
+
+    # Display probabilities
+    if predictions.shape[1] == 2:  # If model outputs [prob_pneumonia, prob_normal]
+        st.write(f"Prediction Probabilities: Pneumonia: {predictions[0][0]:.2f}, Normal: {predictions[0][1]:.2f}")
+    else:  # If model outputs single probability (sigmoid)
+        st.write(f"Prediction Probability: Pneumonia: {predictions[0][0]:.2f}")
 
     st.success(f"The model predicts: **{predicted_label}**")
