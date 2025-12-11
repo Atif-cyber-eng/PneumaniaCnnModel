@@ -9,7 +9,7 @@ import io
 # Ensure the model path is correct or accessible in the Streamlit app environment
 @st.cache_resource
 def load_my_model():
-    model = tf.keras.models.load_model('covid_detection.keras')
+    model = tf.keras.models.load_model('https://drive.google.com/file/d/15ji-5Y6fwZmEBqw0MlP1Z6L8RAmWKAVh/view?usp=sharing')
     return model
 
 model = load_my_model()
