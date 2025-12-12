@@ -1,6 +1,6 @@
-streamlit>=1.24.0
-tensorflow-cpu==2.12.0
-Pillow
+streamlit
+tensorflow
+pillow
 numpy
 gdown
-scikit-learn
+opencv-python
