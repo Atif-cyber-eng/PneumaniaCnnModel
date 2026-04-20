@@ -50,83 +50,118 @@ if not st.session_state.loaded:
     st.session_state.loaded = True
     st.rerun()
 
-# ---------------- MODERN CSS ----------------
+# ---------------- PREMIUM CSS ----------------
 st.markdown("""
 <style>
 
-/* Background */
+/* ===== Animated Background ===== */
 body {
-    background: linear-gradient(135deg, #0f172a, #020617);
+    background: linear-gradient(-45deg, #020617, #0f172a, #020617, #1e293b);
+    background-size: 400% 400%;
+    animation: gradientBG 12s ease infinite;
+    color: white;
 }
 
-/* Main Container */
+@keyframes gradientBG {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* ===== Main Container ===== */
 .main {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+
+/* ===== Title ===== */
+h1 {
+    font-size: 42px;
+    font-weight: 800;
+    text-align: center;
+    background: linear-gradient(90deg, #4CAF50, #22c55e, #16a34a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ===== Upload Box ===== */
+.stFileUploader {
+    border: 2px dashed #22c55e;
     border-radius: 20px;
     padding: 20px;
-    color: white;
-}
-
-/* Title */
-h1 {
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-/* Upload Box */
-.stFileUploader {
-    border: 2px dashed #4CAF50;
-    border-radius: 15px;
-    padding: 15px;
     background: rgba(255,255,255,0.03);
-}
-
-/* Buttons */
-.stButton>button {
-    background: linear-gradient(135deg, #4CAF50, #22c55e);
-    color: white;
-    border-radius: 12px;
-    padding: 10px 25px;
-    font-weight: bold;
     transition: 0.3s;
 }
 
+.stFileUploader:hover {
+    background: rgba(34,197,94,0.08);
+    transform: scale(1.02);
+}
+
+/* ===== Buttons ===== */
+.stButton>button {
+    background: linear-gradient(135deg, #22c55e, #4CAF50);
+    color: white;
+    border-radius: 15px;
+    padding: 12px 28px;
+    font-weight: bold;
+    border: none;
+}
+
 .stButton>button:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 5px 20px rgba(76, 175, 80, 0.6);
+    transform: scale(1.07);
+    box-shadow: 0px 8px 25px rgba(34,197,94,0.7);
 }
 
-/* Result Card */
+/* ===== Result Box ===== */
 .result-box {
-    padding: 25px;
-    border-radius: 20px;
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(10px);
-    box-shadow: 0px 10px 30px rgba(0,0,0,0.6);
-    animation: fadeIn 0.6s ease-in-out;
+    padding: 30px;
+    border-radius: 25px;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(12px);
+    box-shadow: 0px 15px 40px rgba(0,0,0,0.7);
+    animation: fadeInUp 0.7s ease-in-out;
 }
 
-/* Animation */
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(20px);}
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+    from {opacity: 0; transform: translateY(30px);}
     to {opacity: 1; transform: translateY(0);}
 }
 
-/* Progress Bar */
+/* ===== Progress ===== */
 .stProgress > div > div {
     background: linear-gradient(90deg, #22c55e, #4CAF50);
 }
 
-/* Sidebar */
+/* ===== Sidebar ===== */
 section[data-testid="stSidebar"] {
     background: #020617;
 }
 
-/* Image */
+/* ===== Image ===== */
 img {
-    border-radius: 15px;
-    box-shadow: 0px 8px 25px rgba(0,0,0,0.6);
+    border-radius: 20px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.7);
+}
+
+/* ===== Status Badge ===== */
+.status-badge {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 5px 20px rgba(34,197,94,0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {box-shadow: 0 0 0 0 rgba(34,197,94,0.6);}
+    70% {box-shadow: 0 0 0 20px rgba(34,197,94,0);}
+    100% {box-shadow: 0 0 0 0 rgba(34,197,94,0);}
 }
 
 </style>
@@ -134,8 +169,8 @@ img {
 
 # ---------------- TITLE ----------------
 st.markdown("""
-<h1 style='text-align:center; font-size:42px;'>🩺 Pneumonia Detection AI</h1>
-<p style='text-align:center; font-size:18px; color:lightgray;'>
+<h1>🩺 Pneumonia Detection AI</h1>
+<p style='text-align:center; color:lightgray;'>
 Upload Chest X-ray & get instant AI-powered diagnosis
 </p>
 """, unsafe_allow_html=True)
@@ -143,13 +178,7 @@ Upload Chest X-ray & get instant AI-powered diagnosis
 # ---------------- SIDEBAR ----------------
 with st.sidebar:
     st.header("ℹ️ About")
-    st.write("""
-    AI system for detecting Pneumonia using Chest X-rays.
-    
-    ✔ Fast  
-    ✔ Accurate  
-    ✔ Easy to use  
-    """)
+    st.write("AI system for detecting Pneumonia using Chest X-rays.")
 
     st.header("⚙️ Model Info")
     st.write("Model: CNN")
@@ -163,12 +192,10 @@ except Exception as e:
     st.error(f"❌ Error loading model: {e}")
     st.stop()
 
-# Status Badge
+# ---------------- STATUS ----------------
 st.markdown("""
-<div style="text-align:center; margin-top:10px;">
-    <span style="background:#22c55e; padding:8px 15px; border-radius:20px;">
-        ✅ AI Model Ready
-    </span>
+<div style="text-align:center;">
+    <span class="status-badge">🚀 AI Model Ready</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -193,7 +220,7 @@ if uploaded_file:
         st.image(image, caption="Uploaded X-ray", use_column_width=True)
 
     with col2:
-        st.markdown("### 🔍 AI is analyzing the X-ray...")
+        st.markdown("### 🔍 AI is analyzing...")
 
         with st.spinner("Processing..."):
             img = preprocess(image)
@@ -213,16 +240,16 @@ if uploaded_file:
 
         if label == "Pneumonia":
             st.markdown(f"""
-            <div class="result-box" style="border-left: 6px solid red;">
+            <div class="result-box" style="border-left:6px solid red;">
                 <h2 style="color:red;">⚠️ Pneumonia Detected</h2>
-                <p style="font-size:18px;">Confidence: {confidence:.2f}</p>
+                <p>Confidence: {confidence:.2f}</p>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div class="result-box" style="border-left: 6px solid #22c55e;">
+            <div class="result-box" style="border-left:6px solid #22c55e;">
                 <h2 style="color:#22c55e;">✅ Normal</h2>
-                <p style="font-size:18px;">Confidence: {confidence:.2f}</p>
+                <p>Confidence: {confidence:.2f}</p>
             </div>
             """, unsafe_allow_html=True)
 
