@@ -3,18 +3,36 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import time
+import gdown
 
-# Try TensorFlow
+# TensorFlow
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
+# ---------------- CONFIG ----------------
 st.set_page_config(
     page_title="Pneumonia Detection",
     page_icon="🩺",
     layout="centered"
 )
 
-# ---------------- SPLASH SCREEN ---------------
+# ---------------- MODEL SETUP ----------------
+MODEL_PATH = "pneumonia_model.h5"
+MODEL_URL = "https://drive.google.com/uc?id=12XyA6c8ykWGpO5U1eUUCri963BKfsIFg"
+
+# ---------------- DOWNLOAD MODEL ----------------
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        st.info("⬇️ Downloading AI model... Please wait")
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+
+# ---------------- LOAD MODEL ----------------
+@st.cache_resource
+def load_model_cached():
+    download_model()
+    return load_model(MODEL_PATH)
+
+# ---------------- SPLASH SCREEN ----------------
 if "loaded" not in st.session_state:
     st.session_state.loaded = False
 
@@ -63,12 +81,6 @@ body {
 st.markdown("<h1 style='text-align:center;'>🩺 Pneumonia Detection</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;'>Upload Chest X-ray & get instant AI prediction</p>", unsafe_allow_html=True)
 
-MODEL_PATH = "pneumonia_model.h5"
-
-@st.cache_resource
-def load_model_cached():
-    return load_model(MODEL_PATH)
-
 # ---------------- SIDEBAR ----------------
 with st.sidebar:
     st.header("ℹ️ About")
@@ -88,13 +100,14 @@ with st.sidebar:
 try:
     model = load_model_cached()
     st.success("✅ Model Loaded Successfully")
-except:
-    st.error("❌ Model not found. Place pneumonia_model.h5 file.")
+except Exception as e:
+    st.error(f"❌ Error loading model: {e}")
     st.stop()
 
 # ---------------- IMAGE UPLOAD ----------------
 uploaded_file = st.file_uploader("📤 Upload X-ray Image", type=["jpg", "png", "jpeg"])
 
+# ---------------- PREPROCESS ----------------
 def preprocess(img):
     img = img.convert("RGB")
     img = img.resize((224, 224))
