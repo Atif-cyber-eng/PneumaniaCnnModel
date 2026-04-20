@@ -11,22 +11,20 @@ from tensorflow.keras.models import load_model
 
 # ---------------- CONFIG ----------------
 st.set_page_config(
-    page_title="Pneumonia Detection",
+    page_title="Pneumonia Detection AI",
     page_icon="🩺",
     layout="centered"
 )
 
-# ---------------- MODEL SETUP ----------------
+# ---------------- MODEL ----------------
 MODEL_PATH = "pneumonia_model.h5"
 MODEL_URL = "https://drive.google.com/uc?id=12XyA6c8ykWGpO5U1eUUCri963BKfsIFg"
 
-# ---------------- DOWNLOAD MODEL ----------------
 def download_model():
     if not os.path.exists(MODEL_PATH):
         st.info("⬇️ Downloading AI model... Please wait")
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
-# ---------------- LOAD MODEL ----------------
 @st.cache_resource
 def load_model_cached():
     download_model()
@@ -40,7 +38,7 @@ if not st.session_state.loaded:
     st.markdown("""
         <div style="text-align:center; padding-top:150px;">
             <h1 style="color:#4CAF50;">🩺 Pneumonia Detection AI</h1>
-            <p style="font-size:18px;">Loading model... Please wait</p>
+            <p style="font-size:18px;">Loading AI Model...</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -52,40 +50,101 @@ if not st.session_state.loaded:
     st.session_state.loaded = True
     st.rerun()
 
-# ---------------- CUSTOM CSS ----------------
+# ---------------- MODERN CSS ----------------
 st.markdown("""
 <style>
+
+/* Background */
 body {
-    background-color: #0f172a;
+    background: linear-gradient(135deg, #0f172a, #020617);
 }
+
+/* Main Container */
 .main {
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    color: white;
-}
-.stButton>button {
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 10px;
-    padding: 10px 20px;
-}
-.result-box {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
     padding: 20px;
-    border-radius: 15px;
-    background: #1e293b;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+    color: white;
 }
+
+/* Title */
+h1 {
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Upload Box */
+.stFileUploader {
+    border: 2px dashed #4CAF50;
+    border-radius: 15px;
+    padding: 15px;
+    background: rgba(255,255,255,0.03);
+}
+
+/* Buttons */
+.stButton>button {
+    background: linear-gradient(135deg, #4CAF50, #22c55e);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 25px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.stButton>button:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 5px 20px rgba(76, 175, 80, 0.6);
+}
+
+/* Result Card */
+.result-box {
+    padding: 25px;
+    border-radius: 20px;
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.6);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+/* Progress Bar */
+.stProgress > div > div {
+    background: linear-gradient(90deg, #22c55e, #4CAF50);
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background: #020617;
+}
+
+/* Image */
+img {
+    border-radius: 15px;
+    box-shadow: 0px 8px 25px rgba(0,0,0,0.6);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------- TITLE ----------------
-st.markdown("<h1 style='text-align:center;'>🩺 Pneumonia Detection</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;'>Upload Chest X-ray & get instant AI prediction</p>", unsafe_allow_html=True)
+st.markdown("""
+<h1 style='text-align:center; font-size:42px;'>🩺 Pneumonia Detection AI</h1>
+<p style='text-align:center; font-size:18px; color:lightgray;'>
+Upload Chest X-ray & get instant AI-powered diagnosis
+</p>
+""", unsafe_allow_html=True)
 
 # ---------------- SIDEBAR ----------------
 with st.sidebar:
     st.header("ℹ️ About")
     st.write("""
-    This AI model detects Pneumonia from Chest X-ray images using CNN.
+    AI system for detecting Pneumonia using Chest X-rays.
     
     ✔ Fast  
     ✔ Accurate  
@@ -104,8 +163,17 @@ except Exception as e:
     st.error(f"❌ Error loading model: {e}")
     st.stop()
 
+# Status Badge
+st.markdown("""
+<div style="text-align:center; margin-top:10px;">
+    <span style="background:#22c55e; padding:8px 15px; border-radius:20px;">
+        ✅ AI Model Ready
+    </span>
+</div>
+""", unsafe_allow_html=True)
+
 # ---------------- IMAGE UPLOAD ----------------
-uploaded_file = st.file_uploader("📤 Upload X-ray Image", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader("📤 Upload Chest X-ray", type=["jpg", "png", "jpeg"])
 
 # ---------------- PREPROCESS ----------------
 def preprocess(img):
@@ -122,10 +190,10 @@ if uploaded_file:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image(image, caption="Uploaded Image", use_column_width=True)
+        st.image(image, caption="Uploaded X-ray", use_column_width=True)
 
     with col2:
-        st.write("### 🔍 Analyzing...")
+        st.markdown("### 🔍 AI is analyzing the X-ray...")
 
         with st.spinner("Processing..."):
             img = preprocess(image)
@@ -141,28 +209,25 @@ if uploaded_file:
                 label = labels[idx]
                 confidence = pred[0][idx]
 
-        # ---------------- RESULT UI ----------------
         st.markdown("### 🧾 Result")
 
         if label == "Pneumonia":
             st.markdown(f"""
             <div class="result-box" style="border-left: 6px solid red;">
-                <h2 style="color:red;">⚠️ {label}</h2>
-                <p>Confidence: {confidence:.2f}</p>
+                <h2 style="color:red;">⚠️ Pneumonia Detected</h2>
+                <p style="font-size:18px;">Confidence: {confidence:.2f}</p>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div class="result-box" style="border-left: 6px solid green;">
-                <h2 style="color:lightgreen;">✅ {label}</h2>
-                <p>Confidence: {confidence:.2f}</p>
+            <div class="result-box" style="border-left: 6px solid #22c55e;">
+                <h2 style="color:#22c55e;">✅ Normal</h2>
+                <p style="font-size:18px;">Confidence: {confidence:.2f}</p>
             </div>
             """, unsafe_allow_html=True)
 
-        # ---------------- PROGRESS BAR ----------------
         st.progress(int(confidence * 100))
 
-        # ---------------- EXTRA ----------------
         with st.expander("🔬 Detailed Output"):
             st.write(pred)
 
