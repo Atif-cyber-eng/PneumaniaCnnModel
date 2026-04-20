@@ -14,7 +14,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# ---------------- SPLASH SCREEN ----------------
+# ---------------- SPLASH SCREEN ---------------
 if "loaded" not in st.session_state:
     st.session_state.loaded = False
 
